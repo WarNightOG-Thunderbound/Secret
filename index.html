@@ -4,21 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret - Open World Survival</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        /* Basic fallback styles if CSS fails to load */
+        body { margin: 0; background: #121212; color: white; }
+        canvas { display: block; width: 100%; height: 100%; }
+    </style>
 </head>
 <body>
     <div id="loading-screen">
         <div class="loader"></div>
         <div id="loading-progress">0%</div>
+        <div id="loading-message">Loading game assets...</div>
     </div>
     
     <div id="menu-screen" class="hidden">
         <h1>SECRET</h1>
-        <button id="new-world-btn">New World</button>
-        <button id="load-world-btn">Load World</button>
-        <div id="auth-buttons" class="hidden">
-            <button id="login-btn">Login</button>
-            <button id="logout-btn">Logout</button>
+        <div class="menu-buttons">
+            <button id="new-world-btn">New World</button>
+            <button id="load-world-btn">Load World</button>
+            <div id="auth-buttons" class="hidden">
+                <button id="login-btn">Login</button>
+                <button id="logout-btn">Logout</button>
+            </div>
         </div>
     </div>
     
@@ -27,12 +36,49 @@
     </div>
     
     <div id="hud" class="hidden">
-        <div id="health-bar"></div>
-        <div id="xp-bar"></div>
+        <div class="hud-bar">
+            <span>❤️</span>
+            <div id="health-bar-container">
+                <div id="health-bar"></div>
+            </div>
+        </div>
+        <div class="hud-bar">
+            <span>⚡</span>
+            <div id="xp-bar-container">
+                <div id="xp-bar"></div>
+            </div>
+        </div>
         <div id="element-display"></div>
     </div>
-    
-    <script src="lib/three.js"></script>
-    <script type="module" src="js/main.js"></script>
+
+    <!-- Three.js from CDN with local fallback -->
+    <script>
+        function loadThreeJS() {
+            return new Promise((resolve, reject) => {
+                const threeScript = document.createElement('script');
+                threeScript.src = 'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js';
+                threeScript.onload = resolve;
+                threeScript.onerror = () => {
+                    console.log('CDN failed, trying local Three.js');
+                    const localScript = document.createElement('script');
+                    localScript.src = './lib/three.min.js';
+                    localScript.onload = resolve;
+                    localScript.onerror = reject;
+                    document.head.appendChild(localScript);
+                };
+                document.head.appendChild(threeScript);
+            });
+        }
+
+        loadThreeJS().then(() => {
+            const mainScript = document.createElement('script');
+            mainScript.type = 'module';
+            mainScript.src = './js/main.js';
+            document.body.appendChild(mainScript);
+        }).catch(err => {
+            console.error('Failed to load Three.js:', err);
+            document.getElementById('loading-message').textContent = 'Failed to load game engine. Please try again.';
+        });
+    </script>
 </body>
 </html>
